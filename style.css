@@ -1,0 +1,166 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background-color: #030008;
+    font-family: 'Patrick Hand', cursive;
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body:active {
+    cursor: grabbing;
+}
+
+canvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+#main-title {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 4.5em;
+    color: #E2B0FF;
+    text-shadow: 0 0 15px #A855F7, 0 0 30px #6B21A8, 0 0 45px #3B0764;
+    z-index: 10;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+    width: 100%;
+    padding: 0 10px;
+    letter-spacing: 2px;
+}
+
+/* --- ANIMACIONES ROMÁNTICAS Y LETRA --- */
+#love-name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Great Vibes', cursive;
+    font-size: 4.2rem;
+    color: #ffffff;
+    text-shadow: 0 0 10px #ff69b4, 0 0 20px #d946ef, 0 0 40px #8b5cf6, 0 0 80px #c084fc;
+    pointer-events: none;
+    text-align: center;
+    width: 90%;
+    z-index: 100;
+    animation: romanticPulse 2.5s infinite ease-in-out, textGlow 3s infinite alternate;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+@keyframes romanticPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.07);
+    }
+}
+
+@keyframes textGlow {
+    0% {
+        filter: drop-shadow(0 0 8px rgba(217, 70, 239, 0.6));
+    }
+    100% {
+        filter: drop-shadow(0 0 25px rgba(244, 114, 182, 0.9));
+    }
+}
+
+/* --- MODAL DE ENTRADA --- */
+#entry-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #1a002c 0%, #030008 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.form-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(192, 132, 252, 0.25);
+    padding: 35px 28px;
+    border-radius: 28px;
+    backdrop-filter: blur(15px);
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(168, 85, 247, 0.2);
+}
+
+#entry-text {
+    font-size: 2.4em;
+    color: #E2B0FF;
+    text-shadow: 0 0 12px #A855F7;
+    margin-bottom: 5px;
+}
+
+.sub-entry-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9em;
+    color: #C084FC;
+    margin-bottom: 25px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+#entry-button {
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #A855F7, #EC4899);
+    color: #FFFFFF;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.8em;
+    font-weight: 700;
+    cursor: pointer;
+    filter: drop-shadow(0 0 12px #C084FC);
+    transition: all 0.3s ease;
+    animation: latido 1.8s infinite ease-in-out;
+}
+
+#entry-button:hover {
+    filter: drop-shadow(0 0 22px #E9D5FF);
+    transform: scale(1.04);
+}
+
+@keyframes latido {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@media (max-width: 768px) {
+    #main-title { font-size: 3em; top: 25px; }
+    #love-name { font-size: 3rem; }
+}
+
+@media (max-width: 480px) {
+    #main-title { font-size: 2.3em; top: 20px; }
+    #love-name { font-size: 2.4rem; }
+    .form-container { padding: 25px 15px; }
+    #entry-text { font-size: 1.9em; }
+}

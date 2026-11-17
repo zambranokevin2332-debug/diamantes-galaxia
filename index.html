@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>siempre junto a ti</title>
+    <meta property="og:title" content="Galaxia Te amo">
+    <meta property="og:image" content="https://mi-universo-perfecto.netlify.app/assets/icon.webp">
+    <meta property="og:url" content="https://mi-universo-perfecto.netlify.app/">
+    <meta property="og:type" content="website">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Great+Vibes&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://mi-universo-perfecto.netlify.app/assets/icon.webp">
+    
+    <!-- Enlace al archivo CSS externo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1 id="main-title">Nuestro pacto de amor ❤️!</h1>
+
+    <div id="entry-modal">
+        <div class="form-container">
+            <div id="entry-text">¡Hola, 🥰 !</div>
+            <div class="sub-entry-text">Esta es nuestra historia..</div>
+            <button id="entry-button">❣️ENTRAR❣️</button>
+        </div>
+    </div>
+
+    <!-- NOMBRE PERMANENTE Y LETRA SINCRONIZADA -->
+    <div id="love-name">Anahí 💓</div>
+
+    <audio id="background-music" loop></audio>
+
+    <canvas id="galaxy-canvas"></canvas>
+
+    <!-- Import Map de Three.js -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    
+    <!-- Script de seguridad anticopia -->
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && (e.keyCode == 'U'.charCodeAt(0) || e.keyCode == 'S'.charCodeAt(0)))) {
+                return false;
+            }
+        };
+    </script>
+    
+    <!-- Enlace al archivo JS externo con type="module" -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
