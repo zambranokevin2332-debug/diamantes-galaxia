@@ -4,6 +4,9 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
+// Detección de dispositivos móviles para optimizar recursos y rendimiento
+const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 // SINCRONIZACIÓN AL MILÍMETRO MEJORADA
 const LYRICS_SYNC = [
     { time: 0.0,   text: "Anahí 💓" },
@@ -31,22 +34,24 @@ const LYRICS_SYNC = [
 const CONFIG = {
     galaxy: { rotationSpeed: 0.1, centerExclusionRadius: 45 },
     elementExclusionRadius: 55, 
-    blackHole: { radius: 12, segments: 64, color1: '#000000', color2: '#080014' },
+    blackHole: { radius: 12, segments: isMobile ? 32 : 64, color1: '#000000', color2: '#080014' },
     
     accretionRing: {
-        innerRadius: 18, outerRadius: 34, segments: 128,
+        innerRadius: 18, outerRadius: 34, segments: isMobile ? 64 : 128,
         centerColor: '#E2B0FF',
         midColor: '#A855F7',
         edgeColor: '#6B21A8',
         emissiveIntensity: 0.8,
     },
     particles: {
-        coreStars: { count: 22000, radius: 125, maxHeight: 60, size: 0.25 },
-        sphericalHalo: { count: 18000, radiusXZ: 115, radiusY: 55, size: 0.18, minDistFromCenter: 28 },
-        backgroundStars: { count: 6000, radius: 550, size: 0.22 },
+        // Reducción drástica de partículas en celulares para evitar trabas
+        coreStars: { count: isMobile ? 4000 : 22000, radius: 125, maxHeight: 60, size: 0.25 },
+        sphericalHalo: { count: isMobile ? 2500 : 18000, radiusXZ: 115, radiusY: 55, size: 0.18, minDistFromCenter: 28 },
+        backgroundStars: { count: isMobile ? 1200 : 6000, radius: 550, size: 0.22 },
         
         emojis: {
-            count: 65, size: 12,
+            count: isMobile ? 18 : 65, 
+            size: 12,
             minRadius: null, maxRadius: 120,
             content:[ '💖', '✨', '💞', '💜', '❤️', '💐', '🌸', '🌹', '✨', '🌷' ],
             colors:[
@@ -56,12 +61,12 @@ const CONFIG = {
             ]
         }
     },
-    shootingStars: { enabled: true, spawnProbability: 0.02, speed: 1.5 },
+    shootingStars: { enabled: true, spawnProbability: isMobile ? 0.01 : 0.02, speed: 1.5 },
     lighting: {
         ambientLight: { color: '#ffffff', intensity: 0.1 },
         pointLight: { color: '#C084FC', intensity: 2.8, distance: 350 }
     },
-    bloomEffect: { threshold: 0.55, strength: 0.85, radius: 0.6 },
+    bloomEffect: { threshold: 0.55, strength: isMobile ? 0.4 : 0.85, radius: 0.6 },
     cameraControls: { minDistance: 30, maxDistance: 250 }
 };
 
@@ -75,7 +80,7 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('galaxy-canvas'), antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limita pixel ratio para fluidez en móviles
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -83,6 +88,7 @@ function init() {
     controls.dampingFactor = 0.05;
     controls.minDistance = CONFIG.cameraControls.minDistance;
     controls.maxDistance = CONFIG.cameraControls.maxDistance;
+    controls.target.set(0, 0, 0); // Fija el centro exacto de la galaxia
 
     const renderScene = new RenderPass(scene, camera);
     const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
@@ -255,16 +261,16 @@ function createBackgroundStars() {
 
 function createStarTexture(starChar) {
     const canvas = document.createElement('canvas');
-    canvas.width = 256; 
-    canvas.height = 256;
+    canvas.width = 128; // Reducido para optimizar memoria móvil
+    canvas.height = 128;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.textAlign = 'center'; 
     ctx.textBaseline = 'middle';
-    ctx.font = '160px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+    ctx.font = '80px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
     ctx.shadowColor = '#ff69b4'; 
-    ctx.shadowBlur = 24;
-    ctx.fillText(starChar, canvas.width / 2, canvas.height / 2 + 10);
+    ctx.shadowBlur = 12;
+    ctx.fillText(starChar, canvas.width / 2, canvas.height / 2 + 5);
     
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -278,7 +284,7 @@ function createShootingStar(isMassiveShower = false) {
         const material = new THREE.SpriteMaterial({ map: randomTexture, transparent: true, blending: THREE.AdditiveBlending });
         starObj = new THREE.Sprite(material);
         
-        const scaleSize = 10 + Math.random() * 8; 
+        const scaleSize = 8 + Math.random() * 6; 
         starObj.scale.set(scaleSize, scaleSize, 1);
     } else {
         const geometry = new THREE.BufferGeometry();
@@ -287,12 +293,12 @@ function createShootingStar(isMassiveShower = false) {
         starObj = new THREE.Points(geometry, material);
     }
 
-    const x = THREE.MathUtils.randFloatSpread(1400);
-    const y = THREE.MathUtils.randFloat(200, 550);
-    const z = THREE.MathUtils.randFloatSpread(1400);
+    const x = THREE.MathUtils.randFloatSpread(1000);
+    const y = THREE.MathUtils.randFloat(150, 450);
+    const z = THREE.MathUtils.randFloatSpread(1000);
     starObj.position.set(x, y, z);
     
-    const speedMultiplier = isMassiveShower ? 3.2 : 1.3;
+    const speedMultiplier = isMassiveShower ? 2.5 : 1.3;
     starObj.userData.velocity = new THREE.Vector3(
         (Math.random() < 0.5 ? -1 : 1) * CONFIG.shootingStars.speed * speedMultiplier,
         -CONFIG.shootingStars.speed * 0.75 * speedMultiplier,
@@ -336,17 +342,17 @@ function setElementOrbitPosition(element, minRadius, maxRadius) {
 
 function createEmojiTexture(emoji, colorData) {
     const canvas = document.createElement('canvas');
-    canvas.width = 512; 
-    canvas.height = 512;
+    canvas.width = 256; // Reducido para evitar congelamientos en móviles
+    canvas.height = 256;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.textAlign = 'center'; 
     ctx.textBaseline = 'middle';
-    ctx.font = '320px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+    ctx.font = '160px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
     ctx.shadowColor = colorData.shadow; 
-    ctx.shadowBlur = 24; 
+    ctx.shadowBlur = 16; 
     ctx.fillStyle = colorData.fill;
-    ctx.fillText(emoji, canvas.width / 2, canvas.height / 2 + 16);
+    ctx.fillText(emoji, canvas.width / 2, canvas.height / 2 + 8);
 
     const newTexture = new THREE.CanvasTexture(canvas);
     newTexture.colorSpace = THREE.SRGBColorSpace;
@@ -361,7 +367,8 @@ function onWindowResize() {
     renderer.setSize(width, height);
     composer.setSize(width, height);
     camera.aspect = width / height;
-    camera.position.set(0, 35, width < 768 ? 150 : 120);
+    camera.position.set(0, 0, width < 768 ? 150 : 120);
+    controls.target.set(0, 0, 0); // Mantiene el centro perfectamente alineado con el texto
     camera.updateProjectionMatrix();
 }
 
@@ -379,7 +386,7 @@ function animate() {
         const star = shootingStars[i];
         star.position.add(star.userData.velocity);
         star.userData.life++;
-        if (star.userData.life > 350) {
+        if (star.userData.life > 300) {
             scene.remove(star);
             if (star.geometry) star.geometry.dispose();
             if (star.material) star.material.dispose();
@@ -388,31 +395,38 @@ function animate() {
     }
     
     controls.update();
-    composer.render();
+
+    // En celulares usamos render directo para evitar la sobrecarga del EffectComposer (Bloom)
+    if (isMobile) {
+        renderer.render(scene, camera);
+    } else {
+        composer.render();
+    }
 }
 
 init();
 
-// GESTIÓN DE AUDIO Y SINCRONIZACIÓN DE LA LETRA
+// GESTIÓN DE AUDIO Y SINCRONIZACIÓN DE LA LETRA OPTIMIZADA
 const music = document.getElementById('background-music');
+let lastActiveText = ""; // Evita sobrescribir el DOM constantemente
 
 music.addEventListener('timeupdate', () => {
     const currentTime = music.currentTime;
     const activeLine = LYRICS_SYNC.slice().reverse().find(line => currentTime >= line.time);
     
-    if (activeLine) {
+    if (activeLine && activeLine.text !== lastActiveText) {
+        lastActiveText = activeLine.text;
         const loveNameElem = document.getElementById('love-name');
-        if (loveNameElem.textContent !== activeLine.text) {
-            loveNameElem.textContent = activeLine.text;
-        }
+        loveNameElem.textContent = activeLine.text;
     }
 
-    // LLUVIA GIGANTE DE ESTRELLAS ⭐ 🌟 EN LOS COROS
+    // LLUVIA DE ESTRELLAS MODERADA EN LOS COROS PARA CELULARES
     const isFirstChorus = (currentTime >= 76.0 && currentTime <= 83.0);
     const isSecondChorus = (currentTime >= 160.0 && currentTime <= 167.0);
 
     if (isFirstChorus || isSecondChorus) {
-        for (let k = 0; k < 8; k++) {
+        // Limitamos la creación masiva para que no cause "lag" en celulares
+        if (Math.random() < 0.4) {
             createShootingStar(true);
         }
     }
